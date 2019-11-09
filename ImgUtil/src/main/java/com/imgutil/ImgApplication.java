@@ -1,13 +1,13 @@
-package com.imgcompound;
+package com.imgutil;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ImgcompoundApplication {
+public class ImgApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ImgcompoundApplication.class, args);
+        SpringApplication.run(ImgApplication.class, args);
     }
 
 }

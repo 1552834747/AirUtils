@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com</groupId>
-    <artifactId>imgcompound</artifactId>
+    <artifactId>imgutil</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>imgcompound</name>
+    <name>imgutil</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>

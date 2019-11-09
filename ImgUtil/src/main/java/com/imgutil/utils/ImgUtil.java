@@ -1,4 +1,4 @@
-package com.imgcompound.utils;
+package com.imgutil.utils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -11,7 +11,7 @@ import java.net.URL;
 /**
  * 海报生成工具
  */
-public class ImgCompoundUtil {
+public class ImgUtil {
 
     //海报背景
     private BufferedImage poster;
@@ -23,7 +23,7 @@ public class ImgCompoundUtil {
      * @param url       海报背景链接
      * @throws IOException
      */
-    public ImgCompoundUtil(URL url){
+    public ImgUtil(URL url){
         Image image = Toolkit.getDefaultToolkit().getImage(url);
         poster = toBufferedImage(image);
         g = poster.getGraphics();
@@ -35,7 +35,7 @@ public class ImgCompoundUtil {
      * @param is        海报背景输入流
      * @throws IOException
      */
-    public ImgCompoundUtil(InputStream is) throws IOException {
+    public ImgUtil(InputStream is) throws IOException {
         poster = ImageIO.read(is);
         g = poster.getGraphics();
         g.setColor(Color.black);
