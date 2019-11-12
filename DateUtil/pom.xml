@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com</groupId>
-    <artifactId>date</artifactId>
+    <artifactId>dateutil</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>date</name>
+    <name>dateutil</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>

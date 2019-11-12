@@ -8,6 +8,7 @@ import java.util.TimeZone;
 
 public class DateUtil {
 
+    //时区列表
     enum ZoneKey {
         ECT,        //欧洲              巴黎（法国首都）
         ACT,        //澳洲              达尔文市
@@ -47,7 +48,7 @@ public class DateUtil {
      * @param style         转换样式
      * @return
      */
-    public String getZoneTime(long time,ZoneKey zone,String style){
+    public static String getZoneTime(long time,ZoneKey zone,String style){
         SimpleDateFormat format = new SimpleDateFormat(style);
         format.setTimeZone(TimeZone.getTimeZone(ZoneId.SHORT_IDS.get(zone.name())));
         String date = format.format(new Date(time));
@@ -61,7 +62,7 @@ public class DateUtil {
      * @param style         转换样式
      * @return
      */
-    public long getTimeZone(String dateStr, ZoneKey zone,String style){
+    public static long getTimeZone(String dateStr, ZoneKey zone,String style){
         SimpleDateFormat format = new SimpleDateFormat(style);
         format.setTimeZone(TimeZone.getTimeZone(ZoneId.SHORT_IDS.get(zone.name())));
         try {
@@ -72,6 +73,30 @@ public class DateUtil {
         }
         return 0;
     }
+
+    //Date转字符串类型
+    public static String toString(Date date,String style){
+        if (date == null || style == null || "".equals(style.trim())) {
+            return "";
+        }
+        return new SimpleDateFormat(style).format(date);
+    }
+
+    //long转字符串类型
+    public static String toString(long time,String style){
+        return toString(new Date(time),style);
+    }
+
+    //字符串转Date类型
+    public static Date toDate(String dateStr,String style){
+        try {
+            return new SimpleDateFormat(style).parse(dateStr);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return new Date(0);
+    }
+
 
 
 
