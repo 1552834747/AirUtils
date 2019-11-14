@@ -12,10 +12,10 @@ import java.util.Map;
 @TitleStyle(title = {"说明1","说明2"})
 public class TestEntity1 {
 
-    @AirCell(names = "用户id",column = 0)
+    @AirCell(names = "用户id",column = 0,promptTitle = "标题",promptContent = "内容")
     private Integer id;
 
-    @AirCell(names = "用户名",column = 1)
+    @AirCell(names = "用户名",column = 1,textList = {"用户1","用户2","用户3"})
     private String name;
 
     @AirCell(names = "时间",column = 2,titleWidths = 6000)

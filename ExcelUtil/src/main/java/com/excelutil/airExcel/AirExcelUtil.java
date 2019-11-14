@@ -1,9 +1,15 @@
 package com.excelutil.airExcel;
 
 
+import org.apache.poi.hssf.usermodel.DVConstraint;
+import org.apache.poi.hssf.usermodel.HSSFDataValidation;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationConstraint;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.IOException;
@@ -67,7 +73,8 @@ public class AirExcelUtil<T> {
      */
     public boolean exportExcel(List<T> list, String sheetName, String filename, OutputStream output) throws IllegalAccessException {
         //创建excel对象
-        workbook = isExcel2003(filename) ? new HSSFWorkbook() : new XSSFWorkbook();
+        boolean isExcel2003 = isExcel2003(filename);
+        workbook = isExcel2003 ? new HSSFWorkbook() : new XSSFWorkbook();
         dataFormat = workbook.getCreationHelper().createDataFormat();
         sheet = workbook.createSheet(sheetName);      //工作表
         titleCellStyle = createTitleStyle();
@@ -75,7 +82,7 @@ public class AirExcelUtil<T> {
         List<Field> fields = getFieldsByAnnotation(AirCell.class);
         int listMaxSize = getListMaxSize(fields, list);
         //创建列头名称
-        nowRow = setCellTitle(nowRow, fields, listMaxSize);
+        nowRow = setCellTitle(nowRow, fields, listMaxSize,isExcel2003);
         //填充数据
         for (T entity : list) {
             Row row = sheet.createRow(nowRow++);
@@ -96,7 +103,7 @@ public class AirExcelUtil<T> {
     /**
      * 创建列头
      */
-    private int setCellTitle(int nowRow, List<Field> fields, int listMaxSize) {
+    private int setCellTitle(int nowRow, List<Field> fields, int listMaxSize,boolean isExcel2003) {
         TitleStyle titleStyle = clazz.getAnnotation(TitleStyle.class);
         if (titleStyle != null) {
             String[] titles = titleStyle.title();
@@ -114,6 +121,14 @@ public class AirExcelUtil<T> {
         for (Field field : fields) {
             AirCell airCell = field.getAnnotation(AirCell.class);
             int column = airCell.column();
+            if (airCell.names().length < 2) {
+                if (!"".equals(airCell.promptTitle()) || !"".equals(airCell.promptContent())) {
+                    setPrompt(sheet,airCell.promptTitle(),airCell.promptContent(),nowRow,nowRow+airCell.promptRow(),column,column,isExcel2003);
+                }
+                if (airCell.textList().length > 0) {
+                    setValidation(sheet,airCell.textList(),nowRow,nowRow+airCell.textListRow(),column,column,isExcel2003);
+                }
+            }
             String[] names = airCell.names();
             int[] titleWidths = airCell.titleWidths();
             if (!airCell.isList()) {
@@ -318,6 +333,74 @@ public class AirExcelUtil<T> {
             }
         }
         return max;
+    }
+
+    /**
+     * 设置单元格上提示
+     *
+     * @param sheet         要设置的sheet.
+     * @param promptTitle   标题
+     * @param promptContent 内容
+     * @param firstRow      开始行
+     * @param endRow        结束行
+     * @param firstCol      开始列
+     * @param endCol        结束列
+     * @return 设置好的sheet.
+     */
+    public Sheet setPrompt(Sheet sheet, String promptTitle, String promptContent, int firstRow, int endRow, int firstCol, int endCol, boolean isExcel2003) {
+        // 设置区域：四个参数分别是：起始行、终止行、起始列、终止列
+        CellRangeAddressList regions = new CellRangeAddressList(firstRow,
+                endRow, firstCol, endCol);
+        // 数据有效性对象
+        DataValidation data_validation_view = null;
+        if (isExcel2003) {
+            // 构造constraint对象
+            DataValidationConstraint constraint = DVConstraint.createCustomFormulaConstraint("DD1");
+            data_validation_view = new HSSFDataValidation(regions, constraint);
+        } else {
+            XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper((XSSFSheet) sheet);
+            XSSFDataValidationConstraint constraint = (XSSFDataValidationConstraint) dvHelper.createCustomConstraint("DD1");
+            data_validation_view = dvHelper.createValidation(constraint, regions);
+            data_validation_view.setShowPromptBox(true);//设置显示提示框
+        }
+
+        data_validation_view.createPromptBox(promptTitle, promptContent);
+        sheet.addValidationData(data_validation_view);
+        return sheet;
+    }
+
+    /**
+     * 设置某些列的值只能输入预制的数据,显示下拉框.
+     *
+     * @param sheet    要设置的sheet.
+     * @param textlist 下拉框显示的内容
+     * @param firstRow 开始行
+     * @param endRow   结束行
+     * @param firstCol 开始列
+     * @param endCol   结束列
+     * @return 设置好的sheet.
+     */
+    public Sheet setValidation(Sheet sheet, String[] textlist, int firstRow, int endRow, int firstCol, int endCol, boolean isExcel2003) {
+        // 设置数据有效性加载在哪个单元格上,四个参数分别是：起始行、终止行、起始列、终止列
+        CellRangeAddressList regions = new CellRangeAddressList(firstRow,
+                endRow, firstCol, endCol);
+        // 数据有效性对象
+        DataValidation data_validation_list = null;
+        if (isExcel2003) {
+            // 加载下拉列表内容
+            DVConstraint constraint = DVConstraint.createExplicitListConstraint(textlist);
+            data_validation_list = new HSSFDataValidation(regions, constraint);
+        } else {
+            // 加载下拉列表内容
+            XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper((XSSFSheet) sheet);
+            XSSFDataValidationConstraint dvConstraint = (XSSFDataValidationConstraint) dvHelper
+                    .createExplicitListConstraint(textlist);
+            data_validation_list = dvHelper.createValidation(dvConstraint, regions);
+        }
+
+
+        sheet.addValidationData(data_validation_list);
+        return sheet;
     }
 
     /**

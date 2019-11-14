@@ -22,6 +22,26 @@ public @interface AirCell {
      */
     int column();
     /**
+     * 设置提示标题
+     */
+    String promptTitle() default "";
+    /**
+     * 设置提示内容
+     */
+    String promptContent() default "";
+    /**
+     * 提示内容范围
+     */
+    int promptRow() default 200;
+    /**
+     * 设置只能输入特定值
+     */
+    String[] textList() default {};
+    /**
+     * 输入特定值范围
+     */
+    int textListRow() default 200;
+    /**
      * 是否是list
      */
     boolean isList() default false;
